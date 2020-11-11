@@ -14,7 +14,7 @@ matdown_hr = chr(1000009)
 matdown_conversions = {
 	matdown_href: r'<span foreground="#4fbcff">\1</span>',
 	matdown_monospace: r'<code>\1</code>',
-	matdown_quote: r'<blockquote>\1</blockquote>',
+	matdown_quote: r'<i>\1</i>',
 	matdown_bold: r'<b>\1</b>',
 	matdown_italic: r'<i>\1</i>',
 	matdown_h1: r'<span size="2048">\1</span>',
@@ -78,4 +78,16 @@ def matdown_to_pango(content):
 		elif character != matdown_reset:
 			output += character
 
+	return output
+
+
+def matdown_to_plaintext(content):
+	output = ''
+	for character in content:
+		if character not in matdown_conversions and character != matdown_reset:
+			output += character
+
+	output = output\
+		.replace('&gt;', '>')\
+		.replace('&lt;', '<')
 	return output

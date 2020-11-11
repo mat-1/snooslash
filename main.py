@@ -23,7 +23,7 @@ def generate_text_clip(text, read_text=None):
 	background_clip = mpy.ColorClip((width, height), color=(26, 26, 27))
 
 	hashed_read_text = hashlib.md5(read_text.encode()).hexdigest()
-	audio_filename = f'temp/{hashed_read_text}.mp3'
+	audio_filename = f'cache/{hashed_read_text}.mp3'
 
 	tts.save_to_file(read_text, audio_filename)
 	tts.runAndWait()

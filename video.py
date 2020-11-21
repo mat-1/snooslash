@@ -176,10 +176,10 @@ class RedditVideo:
 		print('Starting...')
 		self.video_sections = []
 		self._create_intro()
-		# self._create_post_body(
-		# 	self.reddit_data['body'],
-		# 	author=self.reddit_data['author']
-		# )
+		self._create_post_body(
+			self.reddit_data['body'],
+			author=self.reddit_data['author']
+		)
 
 		print('\nPrepared how the video should look, now writing frames using Pillow.')
 

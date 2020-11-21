@@ -102,7 +102,7 @@ def generate_thumbnail(post):
 
 	title_font = fonts['title'] if len(title) < 100 else fonts['title2']
 
-	lines = wrap_text(title, 850 if len(title) < 100 else 1500, title_font).split('\n')
+	lines = wrap_text(title, 1000 if len(title) < 100 else 1425, title_font).split('\n')
 	total_height = 0
 	for line in lines:
 		w, h = draw.textsize(line, title_font)

@@ -1,5 +1,6 @@
 temp/
 video.mp4
+thumbnail.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -95,9 +95,11 @@ def matdown_to_plaintext(content):
 	return output
 
 
+font_16 = ImageFont.truetype('NotoSans-Regular.ttf', 16)
 font_24 = ImageFont.truetype('NotoSans-Regular.ttf', 24)
 
 fonts = {
+	16: font_16,
 	24: font_24
 }
 

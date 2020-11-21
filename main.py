@@ -1,3 +1,3 @@
 import video
 
-v = video.RedditVideo()
+v = video.RedditVideo(post_id='jxxrzg')

@@ -3,8 +3,8 @@ from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from moviepy.audio.fx.all import audio_normalize
 from moviepy.audio.fx.volumex import volumex
+from PIL import Image, ImageDraw
 from mutagen.wave import WAVE
-from PIL import Image
 import thumbnail
 import markdown
 import reddit
@@ -16,11 +16,11 @@ import re
 import os
 
 class RedditVideo:
-	def __init__(self, filename='video.mp4', video_type='post', reddit_data={}, size=(1280, 720)):
+	def __init__(self, filename='video.mp4', video_type='post', reddit_data={}, size=(1280, 720), post_id=None):
 		self.size = size
 		self.filename = filename
 		self.fps = 24
-		self.reddit_data = reddit_data if reddit_data else reddit.fetch_post()
+		self.reddit_data = reddit_data if reddit_data else reddit.fetch_post(post_id=post_id)
 
 		filename_name_part, filename_ext_part = filename.split('.', 1)
 		self.video_silent_filename = filename_name_part + '-silent.' + filename_ext_part
@@ -73,24 +73,29 @@ class RedditVideo:
 			text=self.reddit_data['title']
 		)
 
-	def _create_post_part(self, content, new_content):
+	def _create_post_part(self, content, new_content, author, page_number):
 		im = Image.new('RGBA', self.size, (26, 26, 27))
-		text_im = markdown.matdown_to_pillow(content, width=self.size[0]-20)
-		im.paste(text_im, (10, 10), text_im)
+		text_im = markdown.matdown_to_pillow(content, width=self.size[0]-100)
+		d = ImageDraw.Draw(im)
+		if page_number == 0:
+			current_font = markdown.fonts[16]
+			d.text((50, 16), f'Written by u/{author or "???"}', font=current_font, fill='#666666')
+
+		im.paste(text_im, (50, 50), text_im)
 		self._add_video_section(
 			'image',
 			image=im,
 			text=markdown.matdown_to_plaintext(new_content)
 		)
 
-	def _create_post_body(self, content):
+	def _create_post_body(self, content, author):
 		print('content', content)
 		matdown_content = markdown.markdown_to_matdown(content)
 		print('matdown_content', matdown_content)
 		# matdown_content = matdown_content[:300]
-		content_pages = markdown.matdown_to_pages(matdown_content, self.size[0]-20, self.size[1]-20)
+		content_pages = markdown.matdown_to_pages(matdown_content, self.size[0]-100, self.size[1]-100)
 		print(content_pages)
-		for page in content_pages:
+		for page_number, page in enumerate(content_pages):
 			sentences_split = re.findall(r'(.+?)( *[\.\?!\n][\'"\)\]]*[ \n]*)', page)
 			sentences = [sentence[0] + sentence[1] for sentence in sentences_split]
 			displaying_text_list = []
@@ -101,7 +106,12 @@ class RedditVideo:
 				displaying_text = ''.join(displaying_text_list)
 				saying_text = markdown.matdown_to_plaintext(sentence)
 				if not re.search('[a-zA-Z]', saying_text): continue
-				self._create_post_part(displaying_text, saying_text)
+				self._create_post_part(
+					displaying_text,
+					saying_text,
+					author=author,
+					page_number=page_number
+				)
 
 	def _render(self):
 		for section in self.video_sections:
@@ -166,7 +176,10 @@ class RedditVideo:
 		print('Starting...')
 		self.video_sections = []
 		self._create_intro()
-		self._create_post_body(self.reddit_data['body'])
+		# self._create_post_body(
+		# 	self.reddit_data['body'],
+		# 	author=self.reddit_data['author']
+		# )
 
 		print('\nPrepared how the video should look, now writing frames using Pillow.')
 

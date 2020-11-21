@@ -88,6 +88,11 @@ class RedditVideo:
 			text=markdown.matdown_to_plaintext(new_content)
 		)
 
+	def _split_sentences(self, content):
+		sentences_split = re.findall(r'(.+?)( *[\.\?!\n][\'"\)\]]*[ \n]*)', content)
+		sentences = [sentence[0] + sentence[1] for sentence in sentences_split]
+		return sentences
+
 	def _create_post_body(self, content, author):
 		print('content', content)
 		matdown_content = markdown.markdown_to_matdown(content)
@@ -96,8 +101,7 @@ class RedditVideo:
 		content_pages = markdown.matdown_to_pages(matdown_content, self.size[0]-100, self.size[1]-100)
 		print(content_pages)
 		for page_number, page in enumerate(content_pages):
-			sentences_split = re.findall(r'(.+?)( *[\.\?!\n][\'"\)\]]*[ \n]*)', page)
-			sentences = [sentence[0] + sentence[1] for sentence in sentences_split]
+			sentences = self._split_sentences(page)
 			displaying_text_list = []
 
 			for sentence in sentences:
@@ -171,6 +175,26 @@ class RedditVideo:
 
 		return concatenate_audioclips(music_clips).set_end(length)
 
+	def _make_description(self):
+		lines = []
+		title = self.reddit_data['title']
+		url = 'https://reddit.com/comments/' + self.reddit_data['id']
+		author = self.reddit_data['author']
+		lines.append(f'"{title}"')
+		lines.append('')
+		lines.append(f'Original Reddit post: {url}')
+		lines.append(f'Written by u/{author}')
+		lines.append('')
+		lines.append('')
+		lines.append('')
+		lines.append('')
+		lines.append('SnooSlash source code: https://github.com/mat-1/snooslash/')
+		description = '\n'.join(lines)
+		with open('description.txt', 'w') as f:
+			f.write(description)
+		return description
+
+
 
 	def _create(self):
 		print('Starting...')
@@ -185,8 +209,9 @@ class RedditVideo:
 
 		self._render()
 
-		print('\nFinished writing frames! Now adding audio.')
+		print('\nFinished writing frames! Now adding audio and final touches.')
 		self._add_audio()
 		self._combine_video_audio()
 		self._clear_temp_files()
+		self._make_description()
 		print('\nFinished!')

@@ -119,10 +119,12 @@ class RedditVideo:
 
 	def _render(self):
 		for section in self.video_sections:
-			duration_frames = int(section['duration'] * self.fps)
+			duration_frames = round(section['duration'] * self.fps)
 			image = section['image']
 			self._write_frames(image, duration_frames)
+			print('.', end='', flush=True)
 		
+		print('pog?')
 		self.v.release()
 
 	def _add_audio(self):
@@ -169,7 +171,7 @@ class RedditVideo:
 		while length > current_length:
 			song_filename = self._select_song_file()
 			music_clip = AudioFileClip(song_filename)
-			music_clips.append(music_clip.fx(audio_normalize).fx(volumex, 0.025))
+			music_clips.append(music_clip.fx(audio_normalize).fx(volumex, 0.02))
 
 			current_length = concatenate_audioclips(music_clips).duration
 
@@ -209,9 +211,12 @@ class RedditVideo:
 
 		self._render()
 
-		print('\nFinished writing frames! Now adding audio and final touches.')
+		print('\nFinished writing frames! Now adding audio...')
 		self._add_audio()
+		print('\nFound good audio, adding to video...')
 		self._combine_video_audio()
+		print('\nClearing temp files...')
 		self._clear_temp_files()
+		print('\nCreating description...')
 		self._make_description()
 		print('\nFinished!')

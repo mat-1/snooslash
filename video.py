@@ -142,6 +142,7 @@ class RedditVideo:
 
 		composite_audio_clip = CompositeAudioClip(audio_clips)
 		composite_audio_clip.fps = None
+		print('Writing complete audio file')
 		composite_audio_clip.write_audiofile('temp/' + self.video_audio_filename)
 
 		for audio_clip in audio_clips:

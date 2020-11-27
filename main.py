@@ -30,3 +30,4 @@ post_id = extract_id(
 v = video.RedditVideo(post_id=post_id)
 
 print('Saved at', os.path.dirname(__file__))
+input()

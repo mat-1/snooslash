@@ -244,6 +244,19 @@ class RedditVideo:
 		return description
 
 
+	def _predict_length(self):
+		length_in_seconds = 0
+		if self.video_sections:
+			length = 0
+			for section in self.video_sections:
+				length += section['duration']
+			length_in_seconds = length
+		if length_in_seconds > 120:
+			return f'{length_in_seconds // 60} minutes'
+		else:
+			return f'{length_in_seconds // 1} seconds'
+
+
 
 	def _create(self):
 		print('Starting...')
@@ -255,6 +268,7 @@ class RedditVideo:
 		)
 
 		print('\nPrepared how the video should look, now writing frames using Pillow.')
+		print('Predicted output length:', self._predict_length())
 
 		self._render()
 

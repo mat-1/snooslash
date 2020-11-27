@@ -7,6 +7,7 @@ from PIL import Image, ImageDraw
 from mutagen.wave import WAVE
 from threading import Thread
 import thumbnail
+import functools
 import markdown
 import reddit
 import random
@@ -136,7 +137,8 @@ class RedditVideo:
 				displaying_text = ''.join(displaying_text_list)
 				saying_text = markdown.matdown_to_plaintext(sentence)
 				if not re.search('[a-zA-Z]', saying_text): continue
-				post_part_function = lambda: self._create_post_part(
+				post_part_function = functools.partial(
+					self._create_post_part,
 					displaying_text,
 					saying_text,
 					author=author,

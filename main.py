@@ -1,4 +1,5 @@
 import video
+import os
 
 def extract_id(url):
 	url_parts = url.strip('/').split('/')
@@ -18,6 +19,7 @@ subreddits = [
 	'TalesFromRetail'
 ]
 
+
 print('Recommended subreddits to look at: ')
 for subreddit in subreddits:
 	print(f'- r/{subreddit}')
@@ -26,3 +28,5 @@ post_id = extract_id(
 )
 
 v = video.RedditVideo(post_id=post_id)
+
+print('Saved at', os.path.dirname(__file__))

@@ -252,9 +252,9 @@ class RedditVideo:
 				length += section['duration']
 			length_in_seconds = length
 		if length_in_seconds > 120:
-			return f'{length_in_seconds // 60} minutes'
+			return f'{int(length_in_seconds / 60)} minutes'
 		else:
-			return f'{length_in_seconds // 1} seconds'
+			return f'{int(length_in_seconds)} seconds'
 
 
 

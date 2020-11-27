@@ -5,6 +5,7 @@ from moviepy.audio.fx.all import audio_normalize
 from moviepy.audio.fx.volumex import volumex
 from PIL import Image, ImageDraw
 from mutagen.wave import WAVE
+from threading import Thread
 import thumbnail
 import markdown
 import reddit
@@ -16,11 +17,12 @@ import re
 import os
 
 class RedditVideo:
-	def __init__(self, filename='video.mp4', video_type='post', reddit_data={}, size=(1280, 720), post_id=None):
+	def __init__(self, filename='video.mp4', video_type='post', reddit_data={}, size=(1280, 720), post_id=None, max_threads=10):
 		self.size = size
 		self.filename = filename
 		self.fps = 24
 		self.reddit_data = reddit_data if reddit_data else reddit.fetch_post(post_id=post_id)
+		self.max_threads = max_threads
 
 		filename_name_part, filename_ext_part = filename.split('.', 1)
 		self.video_silent_filename = filename_name_part + '-silent.' + filename_ext_part
@@ -82,24 +84,48 @@ class RedditVideo:
 			d.text((50, 16), f'Written by u/{author or "???"}', font=current_font, fill='#666666')
 
 		im.paste(text_im, (50, 50), text_im)
-		self._add_video_section(
-			'image',
-			image=im,
-			text=markdown.matdown_to_plaintext(new_content)
-		)
+		return {
+			'image': im,
+			'text': markdown.matdown_to_plaintext(new_content)
+		}
+		
 
 	def _split_sentences(self, content):
 		sentences_split = re.findall(r'(.+?)( *[\.\?!\n][\'"\)\]]*[ \n]*)', content)
 		sentences = [sentence[0] + sentence[1] for sentence in sentences_split]
 		return sentences
 
+	def _gather_threads(self, functions):
+		if len(functions) == 1:
+			# no need to use threads if it's just one thing :)
+			return [functions[0]()]
+		results = {}
+		threads = []
+
+		for thread_id in range(len(functions)):
+			def get_result(thread_id):
+				nonlocal results
+				function = functions[thread_id]
+				result = function()
+				results[thread_id] = result
+
+			thread = Thread(None, get_result, args=(thread_id,))
+			thread.start()
+			threads.append(thread)
+		results_list = []
+		for thread_id, thread in enumerate(threads):
+			thread.join()
+			results_list.append(results[thread_id])
+		return results_list
+
+
 	def _create_post_body(self, content, author):
-		print('content', content)
+		# print('content', content)
 		matdown_content = markdown.markdown_to_matdown(content)
-		print('matdown_content', matdown_content)
-		# matdown_content = matdown_content[:300]
+		# print('matdown_content', matdown_content)
 		content_pages = markdown.matdown_to_pages(matdown_content, self.size[0]-100, self.size[1]-100)
-		print(content_pages)
+		# print(content_pages)
+		functions = []
 		for page_number, page in enumerate(content_pages):
 			sentences = self._split_sentences(page)
 			displaying_text_list = []
@@ -110,11 +136,29 @@ class RedditVideo:
 				displaying_text = ''.join(displaying_text_list)
 				saying_text = markdown.matdown_to_plaintext(sentence)
 				if not re.search('[a-zA-Z]', saying_text): continue
-				self._create_post_part(
+				post_part_function = lambda: self._create_post_part(
 					displaying_text,
 					saying_text,
 					author=author,
 					page_number=page_number
+				)
+				functions.append(post_part_function)
+				if len(functions) >= self.max_threads:
+					post_parts = self._gather_threads(functions)
+					for post_part in post_parts:
+						self._add_video_section(
+							'image',
+							image=post_part['image'],
+							text=post_part['text']
+						)
+					functions = []
+		if functions:
+			post_parts = self._gather_threads(functions)
+			for post_part in post_parts:
+				self._add_video_section(
+					'image',
+					image=post_part['image'],
+					text=post_part['text']
 				)
 
 	def _render(self):

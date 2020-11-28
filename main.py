@@ -1,3 +1,4 @@
+import reddit
 import video
 import os
 
@@ -10,24 +11,15 @@ def extract_id(url):
 		# the input was probably an id anyway
 		return url_parts[-1]
 
-subreddits = [
-	'nosleep',
-	'entitledparents',
-	'tifu',
-	'maliciouscompliance',
-	'talesfromtechsupport',
-	'TalesFromRetail'
-]
+print('Fetching post...')
 
+post = reddit.fetch_post(min_length=2000)
 
-print('Recommended subreddits to look at: ')
-for subreddit in subreddits:
-	print(f'- r/{subreddit}')
-post_id = extract_id(
-	input('Enter Reddit post url or id > ')
-)
+title = post['title']
+subreddit_name = post['subreddit_name_prefixed']
 
-v = video.RedditVideo(post_id=post_id)
+print(f'Generating video titled "{title}" from {subreddit_name}')
+
+v = video.RedditVideo(reddit_data=post)
 
 print('Saved at', os.path.dirname(__file__))
-input()

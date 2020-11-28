@@ -2,6 +2,7 @@ temp/
 video.mp4
 thumbnail.png
 description.txt
+reddit_ids.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

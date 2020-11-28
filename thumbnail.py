@@ -1,5 +1,4 @@
 from PIL import Image, ImageDraw, ImageFont
-import textwrap
 import requests
 import colorsys
 import random

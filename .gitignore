@@ -11,3 +11,4 @@ __pycache__/
 
 .env
 
+client_secret_*.json

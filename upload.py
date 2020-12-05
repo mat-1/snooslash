@@ -17,8 +17,9 @@ def get_upload_time():
 		if publish_day < (now - epoch).days + 1:
 			publish_day = (now - epoch).days + 1
 	publish_datetime = datetime.fromtimestamp(publish_day * 86400)
-	publish_datetime -= timedelta(hours=6) # upload at midday cst
-	strftime = publish_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
+	publish_datetime += timedelta(hours=18) # upload at midday cst
+	strftime = publish_datetime.isoformat('T') + '.0Z'
+	print(strftime)
 	return strftime
 
 def increase_upload_time():
@@ -56,9 +57,15 @@ with open('post.json', 'r') as f:
 with open('description.txt', 'r') as f:
 	description = f.read()
 
-print('Original Subreddit:', post_data['subreddit_name_prefixed'])
-print('Original Reddit title:', post_data['title'])
-title = input('Enter YouTube post title: ')
+def make_title(subreddit, title):
+	title = subreddit + ' | ' + title
+	if len(title) > 100:
+		print('Title is too long!', title)
+		return input('Enter a title instead > ')
+	else:
+		return title
+
+title = make_title(post_data['subreddit_name_prefixed'], post_data['title'])
 video.set_title(title)
 video.set_description(description)
 video.set_tags(tags)

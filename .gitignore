@@ -1,8 +1,10 @@
 temp/
 video.mp4
 thumbnail.png
+reddit_ids.txt
 description.txt
-reddit_ids.txt	
+client_secret.json
+credentials.storage
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -11,4 +13,3 @@ __pycache__/
 
 .env
 
-client_secret_*.json

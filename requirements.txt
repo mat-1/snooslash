@@ -1,0 +1,7 @@
+pillow
+mutagen
+moviepy
+pyttsx3
+requests
+opencv-python
+simple_youtube_api

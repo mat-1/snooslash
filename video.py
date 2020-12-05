@@ -12,6 +12,7 @@ import markdown
 import reddit
 import random
 import numpy
+import json
 import cv2
 import tts
 import re
@@ -256,7 +257,9 @@ class RedditVideo:
 		else:
 			return f'{int(length_in_seconds)} seconds'
 
-
+	def _write_reddit_json_file(self):
+		with open('post.json', 'w') as f:
+			f.write(json.dumps(self.reddit_data))
 
 	def _create(self):
 		print('Starting...')
@@ -280,4 +283,6 @@ class RedditVideo:
 		self._clear_temp_files()
 		print('\nCreating description...')
 		self._make_description()
+		print('\nMaking post.json...')
+		self._write_reddit_json_file()
 		print('\nFinished!')

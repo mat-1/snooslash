@@ -55,14 +55,6 @@ def fetch_post_from_subreddit(subreddit, min_length=None):
 
 
 def fetch_post(subreddit=None, post_id=None, min_length=None):
-	return {
-		'id': 'a',
-		'title': 'hello world',
-		'body': 'pog',
-		'score': 69420,
-		'subreddit_name_prefixed': 'r/snooslash',
-		'author': 'snooslash',
-	}
 	if post_id:
 		post = fetch_post_from_id(post_id)
 	else:
